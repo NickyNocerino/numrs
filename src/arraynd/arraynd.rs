@@ -7,10 +7,16 @@ pub struct ArrayND<T>{
 
 impl<T:Clone> ArrayND<T>{
 
-    pub fn new() -> Self{
+    pub fn empty() -> Self{
         Self{
             shape: vec![0],
             data: vec![]
+        }
+    }
+    pub fn new(shape: Vec<usize>, data: Vec<T>) -> Self{
+        Self{
+            shape:shape,
+            data:data
         }
     }
 
@@ -20,6 +26,10 @@ impl<T:Clone> ArrayND<T>{
             data.push(item.clone())
         }
         Self{shape:shape, data:data}
+    }
+
+    pub fn shape(&self) -> Vec<usize>{
+        self.shape.clone()
     }
 
     pub fn get_item(&self, index: Vec<usize>) -> Result<T, ArrayNDError>{
@@ -55,5 +65,25 @@ impl<T:Clone> ArrayND<T>{
         }
         Ok(self.data[true_index].clone())
     }
+
+    pub fn get_flat_data(&self) -> Vec<T> {
+        self.data.clone()
+    }
+
+    pub fn add_dim(&mut self, n: usize){
+        if n < self.shape.len(){
+            self.shape.insert(n, 1);
+        }
+        else{
+            for _ in 0..(n - self.shape.len() + 1){
+                self.shape.push(1);
+            }
+        }
+    }
+
+    pub fn flatten(&mut self) {
+        self.shape = vec![self.shape.iter().fold(1, |acc, &x| acc * x)];
+    }
+
 }
 

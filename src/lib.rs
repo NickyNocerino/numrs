@@ -1,6 +1,9 @@
 mod arraynd;
 pub use arraynd::*;
 
+mod matrix;
+pub use matrix::*;
+
 mod space;
 pub use space::*;
 
