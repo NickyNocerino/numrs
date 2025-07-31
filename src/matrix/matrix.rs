@@ -20,13 +20,22 @@ impl ops::Add<MatrixND> for MatrixND {
                 }
             ));
         }
+        match ArrayND::<f64>::new(
+            self.values.shape(), 
+            self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a + b).collect()) 
+            {
+                Ok(array) => {return Ok(array.into());}
+                Err(_) =>{
+                    return Err(MatrixNDError::MissmatchedDimensions(
+                        format!{
+                            "Illegal operation: matrix of shape {:?} + matrix of shape: {:?}",
+                            self.values.shape(),
+                            other.values.shape()
+                        }
+                    ));
 
-        return Ok(Self{
-            values:ArrayND::<f64>::new(
-                self.values.shape(), 
-                self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a + b).collect())
+                }
             }
-        );
     }
 }
 
@@ -45,12 +54,30 @@ impl ops::Sub<MatrixND> for MatrixND {
             ));
         }
 
-        Ok(Self{
-            values:ArrayND::<f64>::new(
-                self.values.shape(), 
-                self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a - b).collect())
+        match ArrayND::<f64>::new(
+            self.values.shape(), 
+            self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a - b).collect()) 
+            {
+                Ok(array) => {return Ok(array.into());}
+                Err(_) =>{
+                    return Err(MatrixNDError::MissmatchedDimensions(
+                        format!{
+                            "Illegal operation: matrix of shape {:?} + matrix of shape: {:?}",
+                            self.values.shape(),
+                            other.values.shape()
+                        }
+                    ));
+
+                }
             }
-        )
+    }
+}
+
+impl From<ArrayND<f64>> for MatrixND {
+    fn from(item: ArrayND<f64>) -> Self {
+        Self{
+            values: item,
+        }
     }
 }
 
