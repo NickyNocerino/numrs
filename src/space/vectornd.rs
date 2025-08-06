@@ -1,7 +1,16 @@
 use crate::*;
 
+#[derive(Clone)]
 pub struct VectorND {
     dir: Vec<f64>,
+}
+
+impl From<PointND> for VectorND {
+    fn from(item: PointND) -> Self {
+        Self {
+            dir: item.coords_vec(),
+        }
+    }
 }
 
 impl VectorND {
@@ -12,7 +21,12 @@ impl VectorND {
             new.push(value / magnitude);
         }
         Self {
-            dir:new,
+            dir: new,
         }
     }
+
+    pub fn dir_vec(&self) -> Vec<f64> {
+        self.dir.clone()
+    }
 }
+

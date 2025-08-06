@@ -1,5 +1,6 @@
 use crate::*;
 
+#[derive(Clone)]
 pub struct ArrayND<T>{
     shape: Vec<usize>,
     data: Vec<T>,

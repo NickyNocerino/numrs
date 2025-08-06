@@ -2,6 +2,7 @@ use std::ops;
 
 use crate::*;
 
+#[derive(Clone)]
 pub struct MatrixND {
     values: ArrayND<f64>
 }
