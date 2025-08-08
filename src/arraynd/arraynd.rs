@@ -39,13 +39,13 @@ impl<T:Clone> ArrayND<T>{
         self.shape.clone()
     }
 
-    pub fn get_item(&self, index: Vec<usize>) -> Result<T, ArrayNDError>{
-        if !index.len() == self.shape.len() {
+    pub fn true_index_from_position(&self, position:Vec<usize>) -> Result<usize, ArrayNDError> {
+        if !position.len() == self.shape.len() {
             return Err(
                 ArrayNDError::MissmatchedDimensions(
                     format!(
-                        "Atempted to get item {:?} from ArrayND of shape {:?}", 
-                        index, 
+                        "Atempted to get index of position {:?} from ArrayND of shape {:?}", 
+                        position, 
                         self.shape
                     )
                 )
@@ -53,25 +53,57 @@ impl<T:Clone> ArrayND<T>{
         }
         let mut true_index:usize = 0;
         let mut last_layer: usize = 1;
-        for i in (0..index.len()).rev(){
-            if index[i] >= self.shape[i] {
+        for i in (0..position.len()).rev(){
+            if position[i] >= self.shape[i] {
                 return Err(
                     ArrayNDError::IndexOutOfBounds(
                         format!(
-                            "Atempted to get item {:?} from ArrayND of shape {:?}", 
-                            index, 
+                            "Atempted to get index of position {:?} from ArrayND of shape {:?}", 
+                            position, 
                             self.shape
                         )
                     )
                 );
                 
             }
-            true_index += index[i] * last_layer;
+            true_index += position[i] * last_layer;
             last_layer *= self.shape[i];
     
         }
-        Ok(self.data[true_index].clone())
+        Ok(true_index)
     }
+    
+    pub fn position_from_true_index(&self, index:usize) -> Result<Vec<usize>, ArrayNDError> {
+        if index >= self.data.len() {
+            return Err(ArrayNDError::IndexOutOfBounds(format!( "true index {:?} is out of bounds for ArrayND of shape {:?}",
+                index,
+                self.shape,
+            )))
+        }
+        let mut position = vec![0; self.shape.len()];
+        let mut current_index = index;
+        for (i, &dim_size) in self.shape.iter().enumerate().rev() {
+            position[i] = current_index % dim_size;
+            current_index /= dim_size;
+        }
+
+        Ok(position)
+    }
+
+    pub fn get_item(&self, index: Vec<usize>) -> Result<T, ArrayNDError>{
+        match self.true_index_from_position(index) {
+            Ok(true_index) => { return Ok(self.data[true_index].clone());},
+            Err(e) => {return Err(e);}
+        }
+        
+    }
+
+    // pub fn slice(&self, slice:Vec<(usize, usize)>) -> Result<Self, MatrixError>{
+    //     if !(indices.len() == self.shape.len()) {
+    //         return Err(MatrixError::MissmatchedDimensions(format!("Illegal operation, getting slice {:?} from ArrayND of shape {:?}", indices, self.shape)));
+    //     }
+
+    // }
 
     pub fn get_flat_data(&self) -> Vec<T> {
         self.data.clone()

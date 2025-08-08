@@ -1,3 +1,3 @@
-pub enum MatrixNDError{
+pub enum MatrixError{
     MissmatchedDimensions(String),
 }

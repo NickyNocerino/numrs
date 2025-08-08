@@ -3,97 +3,21 @@ use std::ops;
 use crate::*;
 
 #[derive(Clone)]
-pub struct MatrixND {
-    values: ArrayND<f64>
+pub struct Matrix {
+    shape: (usize, usize),
+    values:Vec<f64>
 }
 
-impl ops::Add<MatrixND> for MatrixND {
-    type Output = Result<Self, MatrixNDError>;
 
-    fn add(self, other: MatrixND) -> Result<Self, MatrixNDError> {
-
-        if !(self.values.shape() == other.values.shape()){
-            return Err(MatrixNDError::MissmatchedDimensions(
-                format!{
-                    "Illegal operation: matrix of shape {:?} + matrix of shape: {:?}",
-                    self.values.shape(),
-                    other.values.shape()
-                }
-            ));
-        }
-        match ArrayND::<f64>::new(
-            self.values.shape(), 
-            self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a + b).collect()) 
-            {
-                Ok(array) => {return Ok(array.into());}
-                Err(_) =>{
-                    return Err(MatrixNDError::MissmatchedDimensions(
-                        format!{
-                            "Illegal operation: matrix of shape {:?} + matrix of shape: {:?}",
-                            self.values.shape(),
-                            other.values.shape()
-                        }
-                    ));
-
-                }
-            }
-    }
-}
-
-impl ops::Sub<MatrixND> for MatrixND {
-    type Output = Result<Self, MatrixNDError>;
-
-    fn sub(self, other: MatrixND) -> Result<Self, MatrixNDError> {
-
-        if !(self.values.shape() == other.values.shape()){
-            return Err(MatrixNDError::MissmatchedDimensions(
-                format!{
-                    "Illegal operation: matrix of shape {:?} - matrix of shape: {:?}",
-                    self.values.shape(),
-                    other.values.shape()
-                }
-            ));
-        }
-
-        match ArrayND::<f64>::new(
-            self.values.shape(), 
-            self.values.get_flat_data().iter().zip(other.values.get_flat_data().iter()).map(|(&a, &b)| a - b).collect()) 
-            {
-                Ok(array) => {return Ok(array.into());}
-                Err(_) =>{
-                    return Err(MatrixNDError::MissmatchedDimensions(
-                        format!{
-                            "Illegal operation: matrix of shape {:?} + matrix of shape: {:?}",
-                            self.values.shape(),
-                            other.values.shape()
-                        }
-                    ));
-
-                }
-            }
-    }
-}
-
-impl From<ArrayND<f64>> for MatrixND {
+impl From<ArrayND<f64>> for Matrix {
     fn from(item: ArrayND<f64>) -> Self {
+        let shape = item.shape();
+        if !shape.len() == 2 {
+            panic!("{}", format!("Illegal conversion, trying to cast ArrayND of shape {:?} to matrix", item.shape()));
+        }
         Self{
-            values: item,
+            shape: (shape[0], shape[1]),
+            values: item.get_flat_data(),
         }
     }
-}
-
-impl MatrixND {
-    pub fn zeros(shape: Vec<usize>) -> Self{
-        Self{
-            values:ArrayND::fill(shape, 0.0)
-        }
-    }
-
-    pub fn ones(shape: Vec<usize>) -> Self{
-        Self{
-            values:ArrayND::fill(shape, 1.0)
-        }
-    }
-
-
 }
