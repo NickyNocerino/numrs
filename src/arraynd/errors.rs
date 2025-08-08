@@ -3,6 +3,8 @@ pub enum ArrayNDError{
 
     IndexOutOfBounds(String),
 
+    IllegalSlice(String),
+
     DivideByZero,
 
 

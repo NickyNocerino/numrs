@@ -98,12 +98,46 @@ impl<T:Clone> ArrayND<T>{
         
     }
 
-    // pub fn slice(&self, slice:Vec<(usize, usize)>) -> Result<Self, MatrixError>{
-    //     if !(indices.len() == self.shape.len()) {
-    //         return Err(MatrixError::MissmatchedDimensions(format!("Illegal operation, getting slice {:?} from ArrayND of shape {:?}", indices, self.shape)));
-    //     }
+    pub fn slice(&self, slice:Vec<(usize, usize)>) -> Result<Self, ArrayNDError>{
+        if !(slice.len() == self.shape.len()) {
+            return Err(ArrayNDError::MissmatchedDimensions(format!("Illegal operation, cannot take slice {:?} from ArrayND of shape {:?}", slice, self.shape)));
+        }
+        for (i, size) in self.shape.iter().enumerate(){
+            let (slice_start, slice_end) = slice[i];
+            if slice_start > slice_end || slice_end > *size{
+                return Err(ArrayNDError::IllegalSlice(format!("Illegal operation, cannot take slice {:?} out of ArrayND of shape {:?}", slice, self.shape)));
+            }
+        }
+        let mut slice_shape = vec![0;slice.len()];
 
-    // }
+        for (i, (slice_start, slice_end)) in slice.iter().enumerate() {
+            slice_shape[i] = slice_end - slice_start + 1;
+        }
+
+        let mut slice_data = Vec::<T>::new();
+        for i in 0..self.data.len() {
+            if let Ok(position) = self.position_from_true_index(i) {
+                let mut position_in_slice = true;
+                for (j, index) in position.iter().enumerate() {
+                    let (slice_start, slice_end) = slice[j];
+                    if !((*index >= slice_start) && (*index < slice_end)) {
+                        position_in_slice = false;
+                    }
+                }
+                if position_in_slice{
+                    slice_data.push(self.data[i].clone());
+                }
+            }
+        }
+
+        let mut out = Self {
+            shape: slice_shape,
+            data:slice_data,
+        };
+        out.squeeze();
+        Ok(out)
+
+    }
 
     pub fn get_flat_data(&self) -> Vec<T> {
         self.data.clone()
@@ -169,11 +203,15 @@ impl<T:Clone> ArrayND<T>{
         self.shape = vec![self.shape.iter().fold(1, |acc, &x| acc * x)];
     }
 
-    pub fn flattened_clone(&mut self) -> Self {
+    pub fn flattened_clone(&self) -> Self {
         Self {
             shape: vec![self.shape.iter().fold(1, |acc, &x| acc * x)],
             data: self.data.clone(),
         }
+    }
+
+    pub fn squeeze(&mut self){
+        self.shape.retain(|x| *x != 1_usize);
     }
 
 }
