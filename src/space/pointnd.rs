@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PointND {
     coords: Vec<f64>,
 }
@@ -12,6 +12,7 @@ impl From<VectorND> for PointND {
         }
     }
 }
+
 
 impl PointND{
     pub fn origin(n: usize) -> Self{

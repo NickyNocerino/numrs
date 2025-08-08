@@ -1,10 +1,12 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ArrayND<T>{
     shape: Vec<usize>,
     data: Vec<T>,
 }
+
+
 
 impl<T:Clone> ArrayND<T>{
 
