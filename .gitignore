@@ -28,3 +28,4 @@ target
 # dev
 /bin/*
 *.temp
+main.rs

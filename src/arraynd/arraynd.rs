@@ -42,7 +42,7 @@ impl<T:Clone> ArrayND<T>{
     }
 
     pub fn true_index_from_position(&self, position:Vec<usize>) -> Result<usize, ArrayNDError> {
-        if !position.len() == self.shape.len() {
+        if !(position.len() == self.shape.len()) {
             return Err(
                 ArrayNDError::MissmatchedDimensions(
                     format!(
@@ -106,14 +106,14 @@ impl<T:Clone> ArrayND<T>{
         }
         for (i, size) in self.shape.iter().enumerate(){
             let (slice_start, slice_end) = slice[i];
-            if slice_start > slice_end || slice_end > *size{
+            if (slice_start == slice_end) || (slice_start > slice_end) || (slice_end > *size) {
                 return Err(ArrayNDError::IllegalSlice(format!("Illegal operation, cannot take slice {:?} out of ArrayND of shape {:?}", slice, self.shape)));
             }
         }
         let mut slice_shape = vec![0;slice.len()];
 
         for (i, (slice_start, slice_end)) in slice.iter().enumerate() {
-            slice_shape[i] = slice_end - slice_start + 1;
+            slice_shape[i] = slice_end - slice_start;
         }
 
         let mut slice_data = Vec::<T>::new();
@@ -136,7 +136,7 @@ impl<T:Clone> ArrayND<T>{
             shape: slice_shape,
             data:slice_data,
         };
-        out.squeeze();
+        //out.squeeze(); //TODO: think about if you want this
         Ok(out)
 
     }
@@ -216,5 +216,25 @@ impl<T:Clone> ArrayND<T>{
         self.shape.retain(|x| *x != 1_usize);
     }
 
+    pub fn squeezed_clone(&self) -> Self {
+        let mut new_shape = self.shape.clone();
+        new_shape.retain(|x| *x != 1_usize);
+        Self {
+            shape: new_shape,
+            data: self.data.clone()
+        }
+    }
+
 }
 
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fill() {
+
+        let zeros = ArrayND::fill(vec![3, 3, 3], 0.0_f64);
+
+        assert_eq!(zeros.shape(), vec![3, 3, 3]);
+    }
+}

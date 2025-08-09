@@ -33,16 +33,80 @@ impl Matrix {
         self.values.clone()
     }
 
+    pub fn zeros(rows: usize, cols: usize) -> Self {
+        let mut data = Vec::<f64>::new();
+        for _i in 0..(rows*cols) {
+            data.push(0.0);
+        }
+        Self{
+            rows:rows,
+            cols:cols,
+            values:data,
+        }
+
+    }
+    pub fn ones(rows: usize, cols: usize) -> Self {
+        let mut data = Vec::<f64>::new();
+        for _i in 0..(rows*cols) {
+            data.push(1.0);
+        }
+        Self{
+            rows:rows,
+            cols:cols,
+            values:data,
+        }
+
+    }
+
+    pub fn identity(rows: usize, cols: usize) -> Self {
+        let mut data = Vec::<f64>::new();
+        for i in 0..(rows) {
+            for j in 0..cols {
+                if i == j {
+                    data.push(1.0);
+                }
+                else {
+                    data.push(0.0);
+                }
+            }
+        }
+
+        Self{
+            rows:rows,
+            cols:cols,
+            values:data,
+        }
+
+    }
+
+
+
     pub fn mat_mul(&self, other: &Matrix) -> Result<Self, MatrixError> {
-        if !(self.cols == other.rows) {
+        if self.cols != other.rows {
             return Err(MatrixError::MissmatchedDimensions(format!("Illegal Operation, cannot multiply matrix {:?} by matrix {:?}", self, other)));
         }
-        let mut out_values = vec![0.0;self.rows*other.cols];
+        let mut out_values = vec![0.0;self.rows * other.cols];
 
+        // The core of the matrix multiplication, using the flat vector for indexing.
+        // It is assumed row-major order: elements of a row are contiguous in memory.
+        for i in 0..self.rows {
+            // Iterate through rows of A (and thus rows of C)
+            for j in 0..other.cols {
+                // Iterate through columns of B (and thus columns of C)
+                for k in 0..self.cols {
+                    // Iterate through columns of A (and rows of B)
+                    // Access elements: data_matrix[row_index * num_cols + col_index]
+                    let a_val = self.values[i * self.cols + k];
+                    let b_val = other.values[k * other.cols + j];
+                    out_values[i * other.cols + j] += a_val * b_val;
+                }
+            }
+        }
+        //TODO
         Ok(Self {
             rows: self.rows,
             cols: other.cols,
-            values: out_values
+            values: out_values,
         })
     }
 
