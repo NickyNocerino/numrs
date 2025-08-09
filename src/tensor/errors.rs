@@ -1,5 +1,6 @@
 #[derive(Debug)]
 pub enum TensorError{
-
-    DivideByZero
+    MissmatchedDimensions(String),
+    DependencyError(String),
+    DivideByZero,
 }

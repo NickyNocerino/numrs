@@ -4,7 +4,7 @@ pub use arraynd::*;
 mod matrix;
 pub use matrix::*;
 
-mod tensor;
+pub mod tensor;
 pub use tensor::*;
 
 mod space;
