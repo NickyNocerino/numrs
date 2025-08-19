@@ -232,6 +232,41 @@ impl Matrix {
             values: out_values,
         })
     }
+
+    pub fn transpose(&mut self) {
+        let mut transposed_data = vec![0.0; self.rows * self.cols]; 
+
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                let original_index = r * self.cols + c; 
+                let transposed_index = c * self.rows + r; 
+                transposed_data[transposed_index] = self.values[original_index];
+            }
+        }
+        *self = Self{
+            rows: self.cols.clone(),
+            cols: self.rows.clone(),
+            values: transposed_data,
+        }
+
+    }
+
+    pub fn transposed_clone(&self) -> Self {
+        let mut transposed_data = vec![0.0; self.rows * self.cols]; 
+
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                let original_index = r * self.cols + c; 
+                let transposed_index = c * self.rows + r; 
+                transposed_data[transposed_index] = self.values[original_index];
+            }
+        }
+        Self {
+            rows: self.cols.clone(),
+            cols: self.rows.clone(),
+            values: transposed_data,
+        }
+    }
 }
 
 mod tests {
@@ -261,6 +296,12 @@ mod tests {
         assert_eq!(ones.clone(), ones.clone() / ones.clone());
 
         assert_eq!(zeros.clone(), ones.clone() ^ zeros.clone());
+    }
+
+    #[test]
+    fn test_transpose() {
+        let matrix: Matrix = Matrix::identity(5,5);
+        assert_eq!(matrix, matrix.transposed_clone())
     }
 
 }
