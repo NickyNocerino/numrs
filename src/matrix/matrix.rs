@@ -24,6 +24,22 @@ impl From<ArrayND<f64>> for Matrix {
     }
 }
 
+impl PartialEq for Matrix {
+    fn eq(&self, other: &Self) -> bool {
+        if self.rows == other.rows && self.cols == other.cols{
+            let other_data = other.get_flat_data();
+            for (v1, v2) in self.get_flat_data().iter().zip(&other_data) {
+                if v1 != v2 {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+        false
+    }
+}
+
 
 impl ops::Add for Matrix {
     type Output = Self;
@@ -66,14 +82,7 @@ impl ops::BitXor for Matrix {
 }
 
 impl Matrix {
-    pub fn shape(&self) -> Vec<usize> {
-        vec![self.rows, self.cols]
-    }
-
-    pub fn get_flat_data(&self) -> Vec<f64> {
-        self.values.clone()
-    }
-
+    
     pub fn zeros(rows: usize, cols: usize) -> Self {
         let mut data = Vec::<f64>::new();
         for _i in 0..(rows*cols) {
@@ -84,8 +93,10 @@ impl Matrix {
             cols:cols,
             values:data,
         }
-
+        
     }
+
+
     pub fn ones(rows: usize, cols: usize) -> Self {
         let mut data = Vec::<f64>::new();
         for _i in 0..(rows*cols) {
@@ -96,9 +107,9 @@ impl Matrix {
             cols:cols,
             values:data,
         }
-
+        
     }
-
+    
     pub fn identity(rows: usize, cols: usize) -> Self {
         let mut data = Vec::<f64>::new();
         for i in 0..(rows) {
@@ -111,15 +122,24 @@ impl Matrix {
                 }
             }
         }
-
+        
         Self{
             rows:rows,
             cols:cols,
             values:data,
         }
-
+        
+    
     }
 
+    pub fn shape(&self) -> Vec<usize> {
+        vec![self.rows, self.cols]
+    }
+
+    pub fn get_flat_data(&self) -> Vec<f64> {
+        self.values.clone()
+    }
+    
     pub fn elementwise_add(&self, other: &Self) -> Result<Self, MatrixError> {
          if self.shape() != other.shape() {
             return Err(MatrixError::MissmatchedDimensions(format!("Illegal Operation, cannot add matrix of shape {:?} to matrix of shape {:?}", self.shape(), other.shape())));
@@ -211,6 +231,36 @@ impl Matrix {
             cols: other.cols,
             values: out_values,
         })
+    }
+}
+
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fill() {
+        let zeros: Matrix = Matrix::zeros(4,4);
+        let ones: Matrix = Matrix::ones(4,4);
+        let matrix: Matrix = Matrix::identity(4,4);
+    }
+
+    #[test]
+    fn test_ops() {
+        let zeros: Matrix = Matrix::zeros(4,4);
+        let ones: Matrix = Matrix::ones(4,4);
+        let matrix: Matrix = Matrix::identity(4,4);
+
+        assert_eq!(ones.clone(), ones.clone() + zeros.clone());
+
+        assert_eq!(ones.clone(), ones.clone() - zeros.clone());
+
+        assert_eq!(zeros.clone(), ones.clone() * zeros.clone());
+
+        assert_eq!(ones.clone(), ones.clone() * ones.clone());
+
+        assert_eq!(ones.clone(), ones.clone() / ones.clone());
+
+        assert_eq!(zeros.clone(), ones.clone() ^ zeros.clone());
     }
 
 }
