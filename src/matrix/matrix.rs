@@ -24,6 +24,7 @@ impl From<ArrayND<f64>> for Matrix {
     }
 }
 
+
 impl ops::Add for Matrix {
     type Output = Self;
 
