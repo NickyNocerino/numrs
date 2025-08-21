@@ -210,8 +210,6 @@ impl Matrix {
         }
         let mut out_values = vec![0.0;self.rows * other.cols];
 
-        // The core of the matrix multiplication, using the flat vector for indexing.
-        // It is assumed row-major order: elements of a row are contiguous in memory.
         for i in 0..self.rows {
             // Iterate through rows of A (and thus rows of C)
             for j in 0..other.cols {
@@ -225,7 +223,6 @@ impl Matrix {
                 }
             }
         }
-        //TODO
         Ok(Self {
             rows: self.rows,
             cols: other.cols,
@@ -274,17 +271,16 @@ mod tests {
 
     #[test]
     fn test_fill() {
-        let zeros: Matrix = Matrix::zeros(4,4);
-        let ones: Matrix = Matrix::ones(4,4);
-        let matrix: Matrix = Matrix::identity(4,4);
+        let _zeros: Matrix = Matrix::zeros(4,4);
+        let _ones: Matrix = Matrix::ones(4,4);
+        let _identity: Matrix = Matrix::identity(4,4);
     }
 
     #[test]
     fn test_ops() {
         let zeros: Matrix = Matrix::zeros(4,4);
         let ones: Matrix = Matrix::ones(4,4);
-        let matrix: Matrix = Matrix::identity(4,4);
-
+        
         assert_eq!(ones.clone(), ones.clone() + zeros.clone());
 
         assert_eq!(ones.clone(), ones.clone() - zeros.clone());

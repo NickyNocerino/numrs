@@ -105,6 +105,5 @@ impl Tensor {
                 return Err(TensorError::DependencyError(format!("{:?}", e)));
             }
         }
-        
     }
 }

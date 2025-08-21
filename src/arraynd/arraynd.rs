@@ -245,7 +245,7 @@ mod tests {
     #[test]
     fn test_slice() {
         let zeros = ArrayND::fill(vec![3, 3, 3], 0.0_f64);
-        let mut slice = zeros.slice(vec![(0, 3),(0, 1), (0, 2)]).expect("legal Slice");
+        let slice = zeros.slice(vec![(0, 3),(0, 1), (0, 2)]).expect("legal Slice");
         assert_eq!(slice.shape(), vec![3, 1, 2]);
     }
 }
