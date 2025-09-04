@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::*;
 
 #[derive(Clone, Debug)]
@@ -170,6 +172,28 @@ impl<T:Clone> ArrayND<T>{
             shape:shape,
             data:self.data.clone()
         }
+    }
+
+    pub fn can_transpose(&self, dims: &[usize]) -> bool {
+        if self.shape.len() == dims.len() && dims.len() > 1 {
+            let n = dims.len();
+            let expected_max = n - 1;
+
+            let unique_numbers: HashSet<_> = dims.iter().copied().collect();
+
+            if unique_numbers.len() != expected_max {
+                return false;
+            }
+
+            for &num in &unique_numbers {
+                if num == 0 || num > expected_max {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        return false;
     }
 
     pub fn transpose(&mut self, dims:&[usize]) {
