@@ -16,7 +16,7 @@ impl<T:Clone> ArrayND<T>{
             data: vec![]
         }
     }
-    pub fn new(shape: Vec<usize>, data: Vec<T>) -> Result<Self, ArrayNDError>{
+    pub fn new(shape: &[usize], data: Vec<T>) -> Result<Self, ArrayNDError>{
         if !(shape.iter().fold(1, |acc, &x| acc * x) == data.len()){
             return Err(ArrayNDError::MissmatchedDimensions(format!( "Shape: {:?} does not match data, len = {:?}",
                 shape,
@@ -24,24 +24,24 @@ impl<T:Clone> ArrayND<T>{
             )))
         }
         Ok(Self{
-            shape:shape,
+            shape:shape.to_vec(),
             data:data
         })
     }
 
-    pub fn fill(shape: Vec<usize>, item: T) -> Self{
+    pub fn fill(shape: &[usize], item: T) -> Self{
         let mut data = Vec::<T>::new();
         for _ in 0..shape.iter().fold(1, |acc, &x| acc * x){
             data.push(item.clone())
         }
-        Self{shape:shape, data:data}
+        Self{shape:shape.to_vec(), data:data}
     }
 
     pub fn shape(&self) -> Vec<usize>{
         self.shape.clone()
     }
 
-    pub fn true_index_from_position(&self, position:Vec<usize>) -> Result<usize, ArrayNDError> {
+    pub fn true_index_from_position(&self, position:&[usize]) -> Result<usize, ArrayNDError> {
         if !(position.len() == self.shape.len()) {
             return Err(
                 ArrayNDError::MissmatchedDimensions(
@@ -92,7 +92,7 @@ impl<T:Clone> ArrayND<T>{
         Ok(position)
     }
 
-    pub fn get_item(&self, index: Vec<usize>) -> Result<T, ArrayNDError>{
+    pub fn get_item(&self, index: &[usize]) -> Result<T, ArrayNDError>{
         match self.true_index_from_position(index) {
             Ok(true_index) => { return Ok(self.data[true_index].clone());},
             Err(e) => {return Err(e);}
@@ -100,7 +100,7 @@ impl<T:Clone> ArrayND<T>{
         
     }
 
-    pub fn slice(&self, slice:Vec<(usize, usize)>) -> Result<Self, ArrayNDError>{
+    pub fn slice(&self, slice:&[(usize, usize)]) -> Result<Self, ArrayNDError>{
         if !(slice.len() == self.shape.len()) {
             return Err(ArrayNDError::MissmatchedDimensions(format!("Illegal operation, cannot take slice {:?} from ArrayND of shape {:?}", slice, self.shape)));
         }
@@ -172,23 +172,33 @@ impl<T:Clone> ArrayND<T>{
         }
     }
 
-    pub fn flatten_axis(&mut self, axis:usize){
-        let mut shape = self.shape.clone();
-        if axis < self.shape.len() - 1 {
-            shape[axis + 1] *= shape[axis];
-            shape.remove(axis);
+    pub fn transpose(&mut self, dims:&[usize]) {
+        if dims.len() == self.shape.len() {
+            //TODO
         }
         else {
-            panic!("Illegal operation, attempting to flatten axis {:?} of shape {:?}", axis, self.shape);
+            panic!("Illegal operation, attempting to transpose dim {:?} of shape {:?}", dims, self.shape);
         }
 
     }
 
-    pub fn flattened_axis_clone(&mut self, axis:usize) -> Self{
+    pub fn flatten_dim(&mut self, dim:usize){
         let mut shape = self.shape.clone();
-        if axis < self.shape.len() - 1 {
-            shape[axis + 1] *= shape[axis];
-            shape.remove(axis);
+        if dim < self.shape.len() - 1 {
+            shape[dim + 1] *= shape[dim];
+            shape.remove(dim);
+        }
+        else {
+            panic!("Illegal operation, attempting to flatten dim {:?} of shape {:?}", dim, self.shape);
+        }
+
+    }
+
+    pub fn flattened_dim_clone(&mut self, dim:usize) -> Self{
+        let mut shape = self.shape.clone();
+        if dim < self.shape.len() - 1 {
+            shape[dim + 1] *= shape[dim];
+            shape.remove(dim);
             return Self{
                 shape:shape,
                 data:self.data.clone()
@@ -196,7 +206,7 @@ impl<T:Clone> ArrayND<T>{
             
         }
         else {
-            panic!("Illegal operation, attempting to flatten axis {:?} of shape {:?}", axis, self.shape);
+            panic!("Illegal operation, attempting to flatten dim {:?} of shape {:?}", dim, self.shape);
         }
 
     }
@@ -233,7 +243,7 @@ mod tests {
     #[test]
     fn test_fill() {
 
-        let zeros = ArrayND::fill(vec![3, 3, 3], 0.0_f64);
+        let zeros = ArrayND::fill(&[3, 3, 3], 0.0_f64);
 
         assert_eq!(zeros.shape(), vec![3, 3, 3]);
 
@@ -244,8 +254,8 @@ mod tests {
 
     #[test]
     fn test_slice() {
-        let zeros = ArrayND::fill(vec![3, 3, 3], 0.0_f64);
-        let slice = zeros.slice(vec![(0, 3),(0, 1), (0, 2)]).expect("legal Slice");
+        let zeros = ArrayND::fill(&[3, 3, 3], 0.0_f64);
+        let slice = zeros.slice(&[(0, 3),(0, 1), (0, 2)]).expect("legal Slice");
         assert_eq!(slice.shape(), vec![3, 1, 2]);
     }
 }

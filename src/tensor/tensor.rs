@@ -7,7 +7,7 @@ pub type Tensor = ArrayND<f64>;
 impl From<Matrix> for Tensor {
     fn from(item:Matrix) -> Self {
         Self::new(
-            item.shape(),
+            &item.shape(),
             item.get_flat_data(),
         ).expect("Matrix should be legal")
     }
@@ -40,7 +40,7 @@ impl Tensor {
         for i in 0..flat_data_1.len() {
             out_values.push(flat_data_1[i] + flat_data_2[i]);
         }
-        match Self::new(self.shape(), out_values) {
+        match Self::new(&self.shape(), out_values) {
             Ok(out) => {return Ok(out);},
             Err(e) => {
                 return Err(TensorError::DependencyError(format!("{:?}", e)));
@@ -59,7 +59,7 @@ impl Tensor {
         for i in 0..flat_data_1.len() {
             out_values.push(flat_data_1[i] - flat_data_2[i]);
         }
-        match Self::new(self.shape(), out_values) {
+        match Self::new(&self.shape(), out_values) {
             Ok(out) => {return Ok(out);},
             Err(e) => {
                 return Err(TensorError::DependencyError(format!("{:?}", e)));
@@ -78,7 +78,7 @@ impl Tensor {
         for i in 0..flat_data_1.len() {
             out_values.push(flat_data_1[i] * flat_data_2[i]);
         }
-        match Self::new(self.shape(), out_values) {
+        match Self::new(&self.shape(), out_values) {
             Ok(out) => {return Ok(out);},
             Err(e) => {
                 return Err(TensorError::DependencyError(format!("{:?}", e)));
@@ -99,7 +99,7 @@ impl Tensor {
             }
             out_values.push(flat_data_1[i] / flat_data_2[i]);
         }
-        match Self::new(self.shape(), out_values) {
+        match Self::new(&self.shape(), out_values) {
             Ok(out) => {return Ok(out);},
             Err(e) => {
                 return Err(TensorError::DependencyError(format!("{:?}", e)));
